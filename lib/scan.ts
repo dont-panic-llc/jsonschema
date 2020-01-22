@@ -3,7 +3,7 @@ var urilib = require('url');
 var helpers = require('./helpers');
 
 module.exports.SchemaScanResult = SchemaScanResult;
-function SchemaScanResult(found, ref){
+function SchemaScanResult(found: {}, ref: {}){
   this.id = found;
   this.ref = ref;
 }
@@ -14,8 +14,8 @@ function SchemaScanResult(found, ref){
  * @param object schema
  * @return {Object}
  */
-module.exports.scan = function scan(base, schema){
-  function scanSchema(baseuri, schema){
+module.exports.scan = function scan(base: any, schema: any){
+  function scanSchema(baseuri: string, schema: string){
     if(!schema || typeof schema!='object') return;
     // Mark all referenced schemas so we can tell later which schemas are referred to, but never defined
     if(schema.$ref){
@@ -53,13 +53,13 @@ module.exports.scan = function scan(base, schema){
     scanArray(ourBase+'/oneOf', schema.oneOf);
     scanSchema(ourBase+'/not', schema.not);
   }
-  function scanArray(baseuri, schemas){
+  function scanArray(baseuri: string, schemas: string | any[]){
     if(!(schemas instanceof Array)) return;
     for(var i=0; i<schemas.length; i++){
       scanSchema(baseuri+'/'+i, schemas[i]);
     }
   }
-  function scanObject(baseuri, schemas){
+  function scanObject(baseuri: string, schemas: { [x: string]: any; }){
     if(!schemas || typeof schemas!='object') return;
     for(var p in schemas){
       scanSchema(baseuri+'/'+p, schemas[p]);

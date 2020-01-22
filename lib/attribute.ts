@@ -38,7 +38,7 @@ var validators = attribute.validators = {};
  * @param ctx
  * @return {ValidatorResult|null}
  */
-validators.type = function validateType (instance, schema, options, ctx) {
+validators.type = function validateType (instance: any, schema: { type: any; }, options: any, ctx: any) {
   // Ignore undefined instances
   if (instance === undefined) {
     return null;
@@ -46,7 +46,7 @@ validators.type = function validateType (instance, schema, options, ctx) {
   var result = new ValidatorResult(instance, schema, options, ctx);
   var types = Array.isArray(schema.type) ? schema.type : [schema.type];
   if (!types.some(this.testType.bind(this, instance, schema, options, ctx))) {
-    var list = types.map(function (v) {
+    var list = types.map(function (v: string) {
       return v.id && ('<' + v.id + '>') || (v+'');
     });
     result.addError({
@@ -58,7 +58,7 @@ validators.type = function validateType (instance, schema, options, ctx) {
   return result;
 };
 
-function testSchemaNoThrow(instance, options, ctx, callback, schema){
+function testSchemaNoThrow(instance: any, options: { throwError: boolean; }, ctx: any, callback: (arg0: any) => void, schema: any){
   var throwError = options.throwError;
   options.throwError = false;
   var res = this.validateSchema(instance, schema, options, ctx);
@@ -78,7 +78,7 @@ function testSchemaNoThrow(instance, options, ctx, callback, schema){
  * @param ctx
  * @return {ValidatorResult|null}
  */
-validators.anyOf = function validateAnyOf (instance, schema, options, ctx) {
+validators.anyOf = function validateAnyOf (instance: any, schema: { anyOf: any[]; }, options: { nestedErrors: any; }, ctx: any) {
   // Ignore undefined instances
   if (instance === undefined) {
     return null;
@@ -90,9 +90,9 @@ validators.anyOf = function validateAnyOf (instance, schema, options, ctx) {
   }
   if (!schema.anyOf.some(
     testSchemaNoThrow.bind(
-      this, instance, options, ctx, function(res){inner.importErrors(res);}
+      this, instance, options, ctx, function(res: any){inner.importErrors(res);}
       ))) {
-    var list = schema.anyOf.map(function (v, i) {
+    var list = schema.anyOf.map(function (v: { [x: string]: string; id: string; title: any; }, i: string) {
       return (v.id && ('<' + v.id + '>')) || (v.title && JSON.stringify(v.title)) || (v['$ref'] && ('<' + v['$ref'] + '>')) || '[subschema '+i+']';
     });
     if (options.nestedErrors) {
@@ -115,7 +115,7 @@ validators.anyOf = function validateAnyOf (instance, schema, options, ctx) {
  * @param ctx
  * @return {String|null}
  */
-validators.allOf = function validateAllOf (instance, schema, options, ctx) {
+validators.allOf = function validateAllOf (instance: any, schema: { allOf: any[]; }, options: any, ctx: any) {
   // Ignore undefined instances
   if (instance === undefined) {
     return null;
@@ -125,7 +125,7 @@ validators.allOf = function validateAllOf (instance, schema, options, ctx) {
   }
   var result = new ValidatorResult(instance, schema, options, ctx);
   var self = this;
-  schema.allOf.forEach(function(v, i){
+  schema.allOf.forEach(function(v: { [x: string]: string; id: string; title: any; }, i: string){
     var valid = self.validateSchema(instance, v, options, ctx);
     if(!valid.valid){
       var msg = (v.id && ('<' + v.id + '>')) || (v.title && JSON.stringify(v.title)) || (v['$ref'] && ('<' + v['$ref'] + '>')) || '[subschema '+i+']';
@@ -148,7 +148,7 @@ validators.allOf = function validateAllOf (instance, schema, options, ctx) {
  * @param ctx
  * @return {String|null}
  */
-validators.oneOf = function validateOneOf (instance, schema, options, ctx) {
+validators.oneOf = function validateOneOf (instance: any, schema: { oneOf: { filter: (arg0: any) => { (): any; new(): any; length: any; }; map: (arg0: (v: any, i: any) => string) => any; }; }, options: { nestedErrors: any; }, ctx: any) {
   // Ignore undefined instances
   if (instance === undefined) {
     return null;
@@ -160,9 +160,9 @@ validators.oneOf = function validateOneOf (instance, schema, options, ctx) {
   var inner = new ValidatorResult(instance, schema, options, ctx);
   var count = schema.oneOf.filter(
     testSchemaNoThrow.bind(
-      this, instance, options, ctx, function(res) {inner.importErrors(res);}
+      this, instance, options, ctx, function(res: any) {inner.importErrors(res);}
       ) ).length;
-  var list = schema.oneOf.map(function (v, i) {
+  var list = schema.oneOf.map(function (v: { [x: string]: string; id: string; title: any; }, i: string) {
     return (v.id && ('<' + v.id + '>')) || (v.title && JSON.stringify(v.title)) || (v['$ref'] && ('<' + v['$ref'] + '>')) || '[subschema '+i+']';
   });
   if (count!==1) {
@@ -186,7 +186,7 @@ validators.oneOf = function validateOneOf (instance, schema, options, ctx) {
  * @param ctx
  * @return {String|null|ValidatorResult}
  */
-validators.properties = function validateProperties (instance, schema, options, ctx) {
+validators.properties = function validateProperties (instance: { [x: string]: any; }, schema: { properties: {}; }, options: { preValidateProperty: (arg0: any, arg1: string, arg2: any, arg3: any, arg4: any) => void; }, ctx: { makeChild: (arg0: any, arg1: string) => any; }) {
   if(!this.types.object(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   var properties = schema.properties || {};
@@ -210,7 +210,7 @@ validators.properties = function validateProperties (instance, schema, options, 
  * @private
  * @return {boolean}
  */
-function testAdditionalProperty (instance, schema, options, ctx, property, result) {
+function testAdditionalProperty (instance: { [x: string]: any; }, schema: { properties: { [x: string]: any; }; additionalProperties: boolean; }, options: { preValidateProperty: (arg0: any, arg1: any, arg2: any, arg3: any, arg4: any) => void; }, ctx: { makeChild: (arg0: any, arg1: any) => any; }, property: string | number, result: { addError: (arg0: { name: string; argument: any; message: string; }) => void; instance: { [x: string]: any; }; importErrors: (arg0: any) => void; }) {
   if(!this.types.object(instance)) return;
   if (schema.properties && schema.properties[property] !== undefined) {
     return;
@@ -242,7 +242,7 @@ function testAdditionalProperty (instance, schema, options, ctx, property, resul
  * @param ctx
  * @return {String|null|ValidatorResult}
  */
-validators.patternProperties = function validatePatternProperties (instance, schema, options, ctx) {
+validators.patternProperties = function validatePatternProperties (instance: { [x: string]: any; }, schema: { patternProperties: {}; }, options: { preValidateProperty: (arg0: any, arg1: string, arg2: any, arg3: any, arg4: any) => void; }, ctx: { makeChild: (arg0: any, arg1: string) => any; }) {
   if(!this.types.object(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   var patternProperties = schema.patternProperties || {};
@@ -280,7 +280,7 @@ validators.patternProperties = function validatePatternProperties (instance, sch
  * @param ctx
  * @return {String|null|ValidatorResult}
  */
-validators.additionalProperties = function validateAdditionalProperties (instance, schema, options, ctx) {
+validators.additionalProperties = function validateAdditionalProperties (instance: any, schema: { patternProperties: any; }, options: any, ctx: any) {
   if(!this.types.object(instance)) return;
   // if patternProperties is defined then we'll test when that one is called instead
   if (schema.patternProperties) {
@@ -299,7 +299,7 @@ validators.additionalProperties = function validateAdditionalProperties (instanc
  * @param schema
  * @return {String|null}
  */
-validators.minProperties = function validateMinProperties (instance, schema, options, ctx) {
+validators.minProperties = function validateMinProperties (instance: {}, schema: { minProperties: string | number; }, options: any, ctx: any) {
   if (!this.types.object(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   var keys = Object.keys(instance);
@@ -319,7 +319,7 @@ validators.minProperties = function validateMinProperties (instance, schema, opt
  * @param schema
  * @return {String|null}
  */
-validators.maxProperties = function validateMaxProperties (instance, schema, options, ctx) {
+validators.maxProperties = function validateMaxProperties (instance: {}, schema: { maxProperties: string | number; }, options: any, ctx: any) {
   if (!this.types.object(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   var keys = Object.keys(instance);
@@ -341,12 +341,12 @@ validators.maxProperties = function validateMaxProperties (instance, schema, opt
  * @param ctx
  * @return {String|null|ValidatorResult}
  */
-validators.items = function validateItems (instance, schema, options, ctx) {
+validators.items = function validateItems (instance: any[], schema: { items: { [x: string]: any; }; additionalItems: any; }, options: any, ctx: { makeChild: (arg0: any, arg1: any) => any; }) {
   var self = this;
   if (!this.types.array(instance)) return;
   if (!schema.items) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
-  instance.every(function (value, i) {
+  instance.every(function (value: any, i: string | number) {
     var items = Array.isArray(schema.items) ? (schema.items[i] || schema.additionalItems) : schema.items;
     if (items === undefined) {
       return true;
@@ -372,7 +372,7 @@ validators.items = function validateItems (instance, schema, options, ctx) {
  * @param schema
  * @return {String|null}
  */
-validators.minimum = function validateMinimum (instance, schema, options, ctx) {
+validators.minimum = function validateMinimum (instance: number, schema: { exclusiveMinimum: boolean; minimum: string | number; }, options: any, ctx: any) {
   if (!this.types.number(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   var valid = true;
@@ -397,10 +397,10 @@ validators.minimum = function validateMinimum (instance, schema, options, ctx) {
  * @param schema
  * @return {String|null}
  */
-validators.maximum = function validateMaximum (instance, schema, options, ctx) {
+validators.maximum = function validateMaximum (instance: number, schema: { exclusiveMaximum: boolean; maximum: string | number; }, options: any, ctx: any) {
   if (!this.types.number(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
-  var valid;
+  var valid: boolean;
   if (schema.exclusiveMaximum && schema.exclusiveMaximum === true) {
     valid = instance < schema.maximum;
   } else {
@@ -424,7 +424,7 @@ validators.maximum = function validateMaximum (instance, schema, options, ctx) {
  * @param errorMessage
  * @returns {String|null}
  */
-var validateMultipleOfOrDivisbleBy = function validateMultipleOfOrDivisbleBy (instance, schema, options, ctx, validationType, errorMessage) {
+var validateMultipleOfOrDivisbleBy = function validateMultipleOfOrDivisbleBy (instance: number, schema: { [x: string]: any; }, options: any, ctx: any, validationType: string, errorMessage: string) {
   if (!this.types.number(instance)) return;
 
   var validationArgument = schema[validationType];
@@ -457,7 +457,7 @@ var validateMultipleOfOrDivisbleBy = function validateMultipleOfOrDivisbleBy (in
  * @param schema
  * @return {String|null}
  */
-validators.multipleOf = function validateMultipleOf (instance, schema, options, ctx) {
+validators.multipleOf = function validateMultipleOf (instance: any, schema: any, options: any, ctx: any) {
  return validateMultipleOfOrDivisbleBy.call(this, instance, schema, options, ctx, "multipleOf", "is not a multiple of (divisible by) ");
 };
 
@@ -467,7 +467,7 @@ validators.multipleOf = function validateMultipleOf (instance, schema, options, 
  * @param schema
  * @return {String|null}
  */
-validators.divisibleBy = function validateDivisibleBy (instance, schema, options, ctx) {
+validators.divisibleBy = function validateDivisibleBy (instance: any, schema: any, options: any, ctx: any) {
   return validateMultipleOfOrDivisbleBy.call(this, instance, schema, options, ctx, "divisibleBy", "is not divisible by (multiple of) ");
 };
 
@@ -477,7 +477,7 @@ validators.divisibleBy = function validateDivisibleBy (instance, schema, options
  * @param schema
  * @return {String|null}
  */
-validators.required = function validateRequired (instance, schema, options, ctx) {
+validators.required = function validateRequired (instance: { [x: string]: any; }, schema: { required: boolean | any[]; }, options: any, ctx: any) {
   var result = new ValidatorResult(instance, schema, options, ctx);
   if (instance === undefined && schema.required === true) {
     // A boolean form is implemented for reverse-compatability with schemas written against older drafts
@@ -486,7 +486,7 @@ validators.required = function validateRequired (instance, schema, options, ctx)
       message: "is required"
     });
   } else if (this.types.object(instance) && Array.isArray(schema.required)) {
-    schema.required.forEach(function(n){
+    schema.required.forEach(function(n: string | number){
       if(instance[n]===undefined){
         result.addError({
           name: 'required',
@@ -505,7 +505,7 @@ validators.required = function validateRequired (instance, schema, options, ctx)
  * @param schema
  * @return {String|null}
  */
-validators.pattern = function validatePattern (instance, schema, options, ctx) {
+validators.pattern = function validatePattern (instance: string, schema: { pattern: { toString: () => any; }; }, options: any, ctx: any) {
   if (!this.types.string(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   if (!instance.match(schema.pattern)) {
@@ -539,7 +539,7 @@ validators.pattern = function validatePattern (instance, schema, options, ctx) {
  * @param [ctx]
  * @return {String|null}
  */
-validators.format = function validateFormat (instance, schema, options, ctx) {
+validators.format = function validateFormat (instance: any, schema: { format: any; }, options: any, ctx: any) {
   if (instance===undefined) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   if (!result.disableFormat && !helpers.isFormat(instance, schema.format, this)) {
@@ -558,7 +558,7 @@ validators.format = function validateFormat (instance, schema, options, ctx) {
  * @param schema
  * @return {String|null}
  */
-validators.minLength = function validateMinLength (instance, schema, options, ctx) {
+validators.minLength = function validateMinLength (instance: string, schema: { minLength: string | number; }, options: any, ctx: any) {
   if (!this.types.string(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   var hsp = instance.match(/[\uDC00-\uDFFF]/g);
@@ -579,7 +579,7 @@ validators.minLength = function validateMinLength (instance, schema, options, ct
  * @param schema
  * @return {String|null}
  */
-validators.maxLength = function validateMaxLength (instance, schema, options, ctx) {
+validators.maxLength = function validateMaxLength (instance: string, schema: { maxLength: string | number; }, options: any, ctx: any) {
   if (!this.types.string(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   // TODO if this was already computed in "minLength", use that value instead of re-computing
@@ -601,7 +601,7 @@ validators.maxLength = function validateMaxLength (instance, schema, options, ct
  * @param schema
  * @return {String|null}
  */
-validators.minItems = function validateMinItems (instance, schema, options, ctx) {
+validators.minItems = function validateMinItems (instance: string | any[], schema: { minItems: string | number; }, options: any, ctx: any) {
   if (!this.types.array(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   if (!(instance.length >= schema.minItems)) {
@@ -620,7 +620,7 @@ validators.minItems = function validateMinItems (instance, schema, options, ctx)
  * @param schema
  * @return {String|null}
  */
-validators.maxItems = function validateMaxItems (instance, schema, options, ctx) {
+validators.maxItems = function validateMaxItems (instance: string | any[], schema: { maxItems: string | number; }, options: any, ctx: any) {
   if (!this.types.array(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   if (!(instance.length <= schema.maxItems)) {
@@ -641,10 +641,10 @@ validators.maxItems = function validateMaxItems (instance, schema, options, ctx)
  * @param ctx
  * @return {String|null|ValidatorResult}
  */
-validators.uniqueItems = function validateUniqueItems (instance, schema, options, ctx) {
+validators.uniqueItems = function validateUniqueItems (instance: any[], schema: any, options: any, ctx: any) {
   if (!this.types.array(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
-  function testArrays (v, i, a) {
+  function testArrays (v: any, i: number, a: string | any[]) {
     for (var j = i + 1; j < a.length; j++) if (helpers.deepCompareStrict(v, a[j])) {
       return false;
     }
@@ -667,8 +667,8 @@ validators.uniqueItems = function validateUniqueItems (instance, schema, options
  * @private
  * @return {boolean}
  */
-function testArrays (v, i, a) {
-  var j, len = a.length;
+function testArrays (v: any, i: number, a: string | any[]) {
+  var j: number, len = a.length;
   for (j = i + 1, len; j < len; j++) {
     if (helpers.deepCompareStrict(v, a[j])) {
       return false;
@@ -682,7 +682,7 @@ function testArrays (v, i, a) {
  * @param instance
  * @return {String|null}
  */
-validators.uniqueItems = function validateUniqueItems (instance, schema, options, ctx) {
+validators.uniqueItems = function validateUniqueItems (instance: any[], schema: any, options: any, ctx: any) {
   if (!this.types.array(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   if (!instance.every(testArrays)) {
@@ -702,7 +702,7 @@ validators.uniqueItems = function validateUniqueItems (instance, schema, options
  * @param ctx
  * @return {null|ValidatorResult}
  */
-validators.dependencies = function validateDependencies (instance, schema, options, ctx) {
+validators.dependencies = function validateDependencies (instance: { [x: string]: any; }, schema: { dependencies: { [x: string]: any; }; }, options: any, ctx: { makeChild: (arg0: any, arg1: string) => any; }) {
   if (!this.types.object(instance)) return;
   var result = new ValidatorResult(instance, schema, options, ctx);
   for (var property in schema.dependencies) {
@@ -749,7 +749,7 @@ validators.dependencies = function validateDependencies (instance, schema, optio
  * @param schema
  * @return {ValidatorResult|null}
  */
-validators['enum'] = function validateEnum (instance, schema, options, ctx) {
+validators['enum'] = function validateEnum (instance: any, schema: { [x: string]: any[]; }, options: any, ctx: any) {
   if (instance === undefined) {
     return null;
   }
@@ -774,7 +774,7 @@ validators['enum'] = function validateEnum (instance, schema, options, ctx) {
  * @param schema
  * @return {ValidatorResult|null}
  */
-validators['const'] = function validateEnum (instance, schema, options, ctx) {
+validators['const'] = function validateEnum (instance: any, schema: { [x: string]: string; }, options: any, ctx: any) {
   if (instance === undefined) {
     return null;
   }
@@ -797,14 +797,14 @@ validators['const'] = function validateEnum (instance, schema, options, ctx) {
  * @param ctx
  * @return {null|ValidatorResult}
  */
-validators.not = validators.disallow = function validateNot (instance, schema, options, ctx) {
+validators.not = validators.disallow = function validateNot (instance: any, schema: { not: any; disallow: any; }, options: any, ctx: any) {
   var self = this;
   if(instance===undefined) return null;
   var result = new ValidatorResult(instance, schema, options, ctx);
   var notTypes = schema.not || schema.disallow;
   if(!notTypes) return null;
   if(!Array.isArray(notTypes)) notTypes=[notTypes];
-  notTypes.forEach(function (type) {
+  notTypes.forEach(function (type: { id: string; }) {
     if (self.testType(instance, schema, options, ctx, type)) {
       var schemaId = type && type.id && ('<' + type.id + '>') || type;
       result.addError({

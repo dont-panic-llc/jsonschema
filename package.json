@@ -3,7 +3,10 @@
   "name": "jsonschema",
   "version": "1.2.5",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "@types/node": "^13.1.8",
+    "nyc": "^15.0.0"
+  },
   "contributors": [
     {
       "name": "Austin Wright"
@@ -20,6 +23,9 @@
   "engines": {
     "node": "*"
   },
+  "files": [
+    "/lib"
+  ],
   "keywords": [
     "json",
     "schema",
@@ -33,6 +39,6 @@
   },
   "description": "A fast and easy to use JSON Schema validator",
   "scripts": {
-    "test": "./node_modules/.bin/mocha -R spec"
+    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\""
   }
 }

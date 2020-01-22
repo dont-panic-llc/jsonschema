@@ -2,7 +2,7 @@
 
 var uri = require('url');
 
-var ValidationError = exports.ValidationError = function ValidationError (message, instance, schema, propertyPath, name, argument) {
+var ValidationError = exports.ValidationError = function ValidationError (message: any, instance: any, schema: { id: any; }, propertyPath: any, name?: any, argument?: any) {
   if (propertyPath) {
     this.property = propertyPath;
   }
@@ -28,7 +28,7 @@ ValidationError.prototype.toString = function toString() {
   return this.property + ' ' + this.message;
 };
 
-var ValidatorResult = exports.ValidatorResult = function ValidatorResult(instance, schema, options, ctx) {
+var ValidatorResult = exports.ValidatorResult = function ValidatorResult(instance: any, schema: any, options: { throwError: any; disableFormat: boolean; }, ctx: { propertyPath: any; }) {
   this.instance = instance;
   this.schema = schema;
   this.propertyPath = ctx.propertyPath;
@@ -37,8 +37,8 @@ var ValidatorResult = exports.ValidatorResult = function ValidatorResult(instanc
   this.disableFormat = options && options.disableFormat === true;
 };
 
-ValidatorResult.prototype.addError = function addError(detail) {
-  var err;
+ValidatorResult.prototype.addError = function addError(detail: { message: any; name: any; argument: any; }) {
+  var err: any;
   if (typeof detail == 'string') {
     err = new ValidationError(detail, this.instance, this.schema, this.propertyPath);
   } else {
@@ -55,7 +55,7 @@ ValidatorResult.prototype.addError = function addError(detail) {
   return err;
 };
 
-ValidatorResult.prototype.importErrors = function importErrors(res) {
+ValidatorResult.prototype.importErrors = function importErrors(res: { validatorType: any; errors: any; }) {
   if (typeof res == 'string' || (res && res.validatorType)) {
     this.addError(res);
   } else if (res && res.errors) {
@@ -63,10 +63,10 @@ ValidatorResult.prototype.importErrors = function importErrors(res) {
   }
 };
 
-function stringizer (v,i){
+function stringizer (v: { toString: () => string; },i: string){
   return i+': '+v.toString()+'\n';
 }
-ValidatorResult.prototype.toString = function toString(res) {
+ValidatorResult.prototype.toString = function toString(res: any) {
   return this.errors.map(stringizer).join('');
 };
 
@@ -79,7 +79,7 @@ Object.defineProperty(ValidatorResult.prototype, "valid", { get: function() {
  * @name SchemaError
  * @constructor
  */
-var SchemaError = exports.SchemaError = function SchemaError (msg, schema) {
+var SchemaError = exports.SchemaError = function SchemaError (msg: any, schema: any) {
   this.message = msg;
   this.schema = schema;
   Error.call(this, msg);
@@ -90,7 +90,7 @@ SchemaError.prototype = Object.create(Error.prototype,
   , name: {value: 'SchemaError', enumerable: false}
   });
 
-var SchemaContext = exports.SchemaContext = function SchemaContext (schema, options, propertyPath, base, schemas) {
+var SchemaContext = exports.SchemaContext = function SchemaContext (schema: any, options: any, propertyPath: any, base: any, schemas: any) {
   this.schema = schema;
   this.options = options;
   this.propertyPath = propertyPath;
@@ -98,11 +98,11 @@ var SchemaContext = exports.SchemaContext = function SchemaContext (schema, opti
   this.schemas = schemas;
 };
 
-SchemaContext.prototype.resolve = function resolve (target) {
+SchemaContext.prototype.resolve = function resolve (target: any) {
   return uri.resolve(this.base, target);
 };
 
-SchemaContext.prototype.makeChild = function makeChild(schema, propertyName){
+SchemaContext.prototype.makeChild = function makeChild(schema: { id: any; }, propertyName: any){
   var propertyPath = (propertyName===undefined) ? this.propertyPath : this.propertyPath+makeSuffix(propertyName);
   var base = uri.resolve(this.base, schema.id||'');
   var ctx = new SchemaContext(schema, this.options, propertyPath, base, Object.create(this.schemas));
@@ -130,10 +130,10 @@ var FORMAT_REGEXPS = exports.FORMAT_REGEXPS = {
 
   'alpha': /^[a-zA-Z]+$/,
   'alphanumeric': /^[a-zA-Z0-9]+$/,
-  'utc-millisec': function (input) {
+  'utc-millisec': function (input: string | number) {
     return (typeof input === 'string') && parseFloat(input) === parseInt(input, 10) && !isNaN(input);
   },
-  'regex': function (input) {
+  'regex': function (input: string | RegExp) {
     var result = true;
     try {
       new RegExp(input);
@@ -150,7 +150,7 @@ FORMAT_REGEXPS.regexp = FORMAT_REGEXPS.regex;
 FORMAT_REGEXPS.pattern = FORMAT_REGEXPS.regex;
 FORMAT_REGEXPS.ipv4 = FORMAT_REGEXPS['ip-address'];
 
-exports.isFormat = function isFormat (input, format, validator) {
+exports.isFormat = function isFormat (input: any, format: string | number, validator: { customFormats: { [x: string]: (arg0: any) => any; }; }) {
   if (typeof input === 'string' && FORMAT_REGEXPS[format] !== undefined) {
     if (FORMAT_REGEXPS[format] instanceof RegExp) {
       return FORMAT_REGEXPS[format].test(input);
@@ -165,7 +165,7 @@ exports.isFormat = function isFormat (input, format, validator) {
   return true;
 };
 
-var makeSuffix = exports.makeSuffix = function makeSuffix (key) {
+var makeSuffix = exports.makeSuffix = function makeSuffix (key: string) {
   key = key.toString();
   // This function could be capable of outputting valid a ECMAScript string, but the
   // resulting code for testing which form to use would be tens of thousands of characters long
@@ -179,7 +179,7 @@ var makeSuffix = exports.makeSuffix = function makeSuffix (key) {
   return '[' + JSON.stringify(key) + ']';
 };
 
-exports.deepCompareStrict = function deepCompareStrict (a, b) {
+exports.deepCompareStrict = function deepCompareStrict (a: any[], b: string | any[]) {
   if (typeof a !== typeof b) {
     return false;
   }
@@ -210,7 +210,7 @@ exports.deepCompareStrict = function deepCompareStrict (a, b) {
   return a === b;
 };
 
-function deepMerger (target, dst, e, i) {
+function deepMerger (target: string | any[], dst: any[], e: any, i: string | number) {
   if (typeof e === 'object') {
     dst[i] = deepMerge(target[i], e)
   } else {
@@ -220,11 +220,11 @@ function deepMerger (target, dst, e, i) {
   }
 }
 
-function copyist (src, dst, key) {
+function copyist (src: { [x: string]: any; }, dst: { [x: string]: any; }, key: string | number) {
   dst[key] = src[key];
 }
 
-function copyistWithDeepMerge (target, src, dst, key) {
+function copyistWithDeepMerge (target: { [x: string]: any; }, src: { [x: string]: any; }, dst: { [x: string]: {}; }, key: string | number) {
   if (typeof src[key] !== 'object' || !src[key]) {
     dst[key] = src[key];
   }
@@ -237,7 +237,7 @@ function copyistWithDeepMerge (target, src, dst, key) {
   }
 }
 
-function deepMerge (target, src) {
+function deepMerge (target: any[], src: any[]) {
   var array = Array.isArray(src);
   var dst = array && [] || {};
 
@@ -264,9 +264,9 @@ module.exports.deepMerge = deepMerge;
  * @param s The path to walk o along
  * @return any
  */
-exports.objectGetPath = function objectGetPath(o, s) {
+exports.objectGetPath = function objectGetPath(o: { [x: string]: any; }, s: string) {
   var parts = s.split('/').slice(1);
-  var k;
+  var k: string;
   while (typeof (k=parts.shift()) == 'string') {
     var n = decodeURIComponent(k.replace(/~0/,'~').replace(/~1/g,'/'));
     if (!(n in o)) return;
@@ -275,7 +275,7 @@ exports.objectGetPath = function objectGetPath(o, s) {
   return o;
 };
 
-function pathEncoder (v) {
+function pathEncoder (v: string | number | boolean) {
   return '/'+encodeURIComponent(v).replace(/~/g,'%7E');
 }
 /**
@@ -283,7 +283,7 @@ function pathEncoder (v) {
  * @param Array a
  * @return {String}
  */
-exports.encodePath = function encodePointer(a){
+exports.encodePath = function encodePointer(a: any[]){
 	// ~ must be encoded explicitly because hacks
 	// the slash is encoded by encodeURIComponent
 	return a.map(pathEncoder).join('');
@@ -297,7 +297,7 @@ exports.encodePath = function encodePointer(a){
  * @param number
  * @returns {number}
  */
-exports.getDecimalPlaces = function getDecimalPlaces(number) {
+exports.getDecimalPlaces = function getDecimalPlaces(number: number) {
 
   var decimalPlaces = 0;
   if (isNaN(number)) return decimalPlaces;
