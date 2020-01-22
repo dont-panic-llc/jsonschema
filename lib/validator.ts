@@ -43,7 +43,7 @@ Validator.prototype.unresolvedRefs = null;
  * @param urn
  * @return {Object}
  */
-Validator.prototype.addSchema = function addSchema (schema: { id: any; }, base: any) {
+Validator.prototype.addSchema = function addSchema (schema, base) {
   var self = this;
   if (!schema) {
     return null;
@@ -56,20 +56,20 @@ Validator.prototype.addSchema = function addSchema (schema: { id: any; }, base: 
   for(var uri in scan.ref){
     this.unresolvedRefs.push(uri);
   }
-  this.unresolvedRefs = this.unresolvedRefs.filter(function(uri: string | number){
+  this.unresolvedRefs = this.unresolvedRefs.filter(function(uri){
     return typeof self.schemas[uri]==='undefined';
   });
   return this.schemas[ourUri];
 };
 
-Validator.prototype.addSubSchemaArray = function addSubSchemaArray(baseuri: any, schemas: string | any[]) {
+Validator.prototype.addSubSchemaArray = function addSubSchemaArray(baseuri, schemas) {
   if(!(schemas instanceof Array)) return;
   for(var i=0; i<schemas.length; i++){
     this.addSubSchema(baseuri, schemas[i]);
   }
 };
 
-Validator.prototype.addSubSchemaObject = function addSubSchemaArray(baseuri: any, schemas: { [x: string]: any; }) {
+Validator.prototype.addSubSchemaObject = function addSubSchemaArray(baseuri, schemas) {
   if(!schemas || typeof schemas!='object') return;
   for(var p in schemas){
     this.addSubSchema(baseuri, schemas[p]);
@@ -82,7 +82,7 @@ Validator.prototype.addSubSchemaObject = function addSubSchemaArray(baseuri: any
  * Sets all the schemas of the Validator instance.
  * @param schemas
  */
-Validator.prototype.setSchemas = function setSchemas (schemas: any) {
+Validator.prototype.setSchemas = function setSchemas (schemas) {
   this.schemas = schemas;
 };
 
@@ -90,7 +90,7 @@ Validator.prototype.setSchemas = function setSchemas (schemas: any) {
  * Returns the schema of a certain urn
  * @param urn
  */
-Validator.prototype.getSchema = function getSchema (urn: string | number) {
+Validator.prototype.getSchema = function getSchema (urn) {
   return this.schemas[urn];
 };
 
@@ -102,7 +102,7 @@ Validator.prototype.getSchema = function getSchema (urn: string | number) {
  * @param [ctx]
  * @return {Array}
  */
-Validator.prototype.validate = function validate (instance: any, schema: { id: any; }, options: { propertyName?: any; base?: any; }, ctx: { schemas: { [x: string]: any; }; }) {
+Validator.prototype.validate = function validate (instance, schema, options, ctx) {
   if (!options) {
     options = {};
   }
@@ -134,7 +134,7 @@ Validator.prototype.validate = function validate (instance: any, schema: { id: a
 * @param Object schema
 * @return mixed schema uri or false
 */
-function shouldResolve(schema: { $ref: any; }) {
+function shouldResolve(schema) {
   var ref = (typeof schema === 'string') ? schema : schema.$ref;
   if (typeof ref=='string') return ref;
   return false;
@@ -149,7 +149,7 @@ function shouldResolve(schema: { $ref: any; }) {
  * @private
  * @return {ValidatorResult}
  */
-Validator.prototype.validateSchema = function validateSchema (instance: any, schema: boolean, options: { skipAttributes: any; allowUnknownAttributes: boolean; rewrite: { call: (arg0: any, arg1: any, arg2: any, arg3: any, arg4: any) => any; }; }, ctx: { propertyPath: any; schemas: any; }) {
+Validator.prototype.validateSchema = function validateSchema (instance, schema, options, ctx) {
   var result = new ValidatorResult(instance, schema, options, ctx);
 
     // Support for the true/false schemas
@@ -180,7 +180,7 @@ Validator.prototype.validateSchema = function validateSchema (instance: any, sch
   }
 
   // If passed a string argument, load that schema URI
-  var switchSchema: string | boolean;
+  var switchSchema;
   if (switchSchema = shouldResolve(schema)) {
     var resolved = this.resolve(schema, switchSchema, ctx);
     var subctx = new SchemaContext(resolved.subschema, options, ctx.propertyPath, resolved.switchSchema, ctx.schemas);
@@ -218,7 +218,7 @@ Validator.prototype.validateSchema = function validateSchema (instance: any, sch
 * @param SchemaContext ctx
 * @returns Object schema or resolved schema
 */
-Validator.prototype.schemaTraverser = function schemaTraverser (schemaobj: { schema: any; ctx: any; }, s: any) {
+Validator.prototype.schemaTraverser = function schemaTraverser (schemaobj, s) {
   schemaobj.schema = helpers.deepMerge(schemaobj.schema, this.superResolve(s, schemaobj.ctx));
 }
 
@@ -228,8 +228,8 @@ Validator.prototype.schemaTraverser = function schemaTraverser (schemaobj: { sch
 * @param SchemaContext ctx
 * @returns Object schema or resolved schema
 */
-Validator.prototype.superResolve = function superResolve (schema: any, ctx: any) {
-  var ref: string | boolean;
+Validator.prototype.superResolve = function superResolve (schema, ctx) {
+  var ref;
   if(ref = shouldResolve(schema)) {
     return this.resolve(schema, ref, ctx).subschema;
   }
@@ -244,7 +244,7 @@ Validator.prototype.superResolve = function superResolve (schema: any, ctx: any)
 * @return Object resolved schemas {subschema:String, switchSchema: String}
 * @throws SchemaError
 */
-Validator.prototype.resolve = function resolve (schema: any, switchSchema: string, ctx: { resolve: (arg0: any) => any; schemas: { [x: string]: any; }; }) {
+Validator.prototype.resolve = function resolve (schema, switchSchema, ctx) {
   switchSchema = ctx.resolve(switchSchema);
   // First see if the schema exists under the provided URI
   if (ctx.schemas[switchSchema]) {
@@ -274,7 +274,7 @@ Validator.prototype.resolve = function resolve (schema: any, switchSchema: strin
  * @param type
  * @return {boolean}
  */
-Validator.prototype.testType = function validateType (instance: any, schema: any, options: any, ctx: any, type: string | number) {
+Validator.prototype.testType = function validateType (instance, schema, options, ctx, type) {
   if (typeof this.types[type] == 'function') {
     return this.types[type].call(this, instance);
   }
@@ -287,32 +287,32 @@ Validator.prototype.testType = function validateType (instance: any, schema: any
 };
 
 var types = Validator.prototype.types = {};
-types.string = function testString (instance: any) {
+types.string = function testString (instance) {
   return typeof instance == 'string';
 };
-types.number = function testNumber (instance: number) {
+types.number = function testNumber (instance) {
   // isFinite returns false for NaN, Infinity, and -Infinity
   return typeof instance == 'number' && isFinite(instance);
 };
-types.integer = function testInteger (instance: number) {
+types.integer = function testInteger (instance) {
   return (typeof instance == 'number') && instance % 1 === 0;
 };
-types.boolean = function testBoolean (instance: any) {
+types.boolean = function testBoolean (instance) {
   return typeof instance == 'boolean';
 };
-types.array = function testArray (instance: any) {
+types.array = function testArray (instance) {
   return Array.isArray(instance);
 };
-types['null'] = function testNull (instance: any) {
+types['null'] = function testNull (instance) {
   return instance === null;
 };
-types.date = function testDate (instance: any) {
+types.date = function testDate (instance) {
   return instance instanceof Date;
 };
-types.any = function testAny (instance: any) {
+types.any = function testAny (instance) {
   return true;
 };
-types.object = function testObject (instance: any) {
+types.object = function testObject (instance) {
   // TODO: fix this - see #15
   return instance && (typeof instance) === 'object' && !(instance instanceof Array) && !(instance instanceof Date);
 };
