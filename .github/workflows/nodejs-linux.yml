@@ -26,3 +26,7 @@ jobs:
         npm test
       env:
         CI: true
+
+    - name: Lint
+      uses: mooyoul/tslint-actions@v1.1.1
+      
