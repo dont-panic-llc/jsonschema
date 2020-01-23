@@ -1,8 +1,7 @@
-[![Build Status](https://secure.travis-ci.org/tdegrunt/jsonschema.svg)](http://travis-ci.org/tdegrunt/jsonschema)
-
 # jsonschema
 [JSON schema](http://json-schema.org/) validator, which is designed to be fast and simple to use.
 The latest IETF published draft is v6, this library is mostly v4 compatible.
+This is a TypeScript version of the original jsonschema package by @tdegrunt. https://github.com/tdegrunt/jsonschema
 
 ## Contributing & bugs
 Please fork the repository, make the changes in your fork and include tests. Once you're done making changes, send in a pull request.
@@ -228,6 +227,7 @@ This library would not be possible without the valuable contributions by:
 
     jsonschema is licensed under MIT license.
 
+    Copyright (C) 2020 Don't Panic Consulting <info@dontpanic.consulting>
     Copyright (C) 2012-2019 Tom de Grunt <tom@degrunt.nl>
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of

@@ -1,12 +1,12 @@
 {
-  "author": "Tom de Grunt <tom@degrunt.nl>",
-  "name": "jsonschema",
-  "version": "1.2.5",
+  "author": "Don't Panic Consulting <info@dontpanic.consulting>",
+  "name": "jsonschema-ts",
+  "version": "1.0.0",
   "license": "MIT",
   "dependencies": {},
   "contributors": [
     {
-      "name": "Austin Wright"
+      "name": "Justin Donnaruma"
     }
   ],
   "main": "./lib",
@@ -41,9 +41,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/tdegrunt/jsonschema.git"
+    "url": "git://github.com/dont-panic-llc/jsonschema.git"
   },
-  "description": "A fast and easy to use JSON Schema validator",
+  "description": "A fast and easy to use JSON Schema validator, converted to TypeScript",
   "scripts": {
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\""
   }
